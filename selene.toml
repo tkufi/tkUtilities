@@ -1,0 +1,7 @@
+std = "roblox"
+[lints]
+multiple_statements = "allow"
+[config]
+exclude = [ "DefaultPackages/Rain.luau", "Wally/_Index/evaera_promise@4.0.0/promise/lib/init.spec.lua", "src/server/modules/ProfileService.luau" ]
+empty_if = { comments_count = true }
+unused_variable = { allow_unused_self = true }

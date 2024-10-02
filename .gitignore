@@ -1,0 +1,8 @@
+# Roblox level files
+*.rbxl
+*.rbxlx
+*.rbxlx.lock
+*.rbxl.lock
+
+# Gaffer project files
+# *.project.json
