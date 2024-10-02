@@ -28,34 +28,21 @@ If you would like to track your Code:Stats progress, please use:
 ## Built With
 
 * [Rojo](https://rojo.space) - VS Code to Roblox
-* [Just](https://github.com/casey/just) - Bash Command Runner
 * [Fusion 2.0](https://elttob.uk/Fusion/0.2/) - UI, State Management and Animation Library
+* [fusion-plugin](https://github.com/frqstbite/fusion-plugin) - Build powerful plugins for Roblox Studio with Fusion, a modern reactivity library for Roblox Luau.
 * [Wally](https://wally.run/install) - Package Manager for Roblox
 
 ## Authors
 
 * **Blaadam** - *Lead Programmer* - [Blaadam](https://github.com/Blaadam)
 
-* **dovntime** - *Project Manager* [dovntime](https://github.com/dovntime)
-
 ---
 
 ## Current Features
 
-1. Body Movements (Social Service)
-2. Ragdoll & Damage System
-3. Datastore Connections (Database Service)
-4. Banking (Money Service)
-5. Weather (Weather Handler)
+1. Lighting Controls
+2. Door Validation
 
 ## ToDo
 
-1. Radio
-2. Fire System
-3. Booking & Incarceration
-4. Vehicle Dealership
-5. Vehicle Chassis
-6. Weapons
-7. Robberies
-8. Civilian Jobs
-9. Property Purchasing
+1. Door Motors
