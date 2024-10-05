@@ -1,7 +1,6 @@
 local CollectionService = game:GetService("CollectionService")
 local CoreGui = game:GetService("CoreGui")
 local Debris = game:GetService("Debris")
-local Lighting = game:GetService("Lighting")
 local Selection = game:GetService("Selection")
 
 local TrackedHighlights = {}
@@ -58,36 +57,73 @@ function MakeHighlightRed(DoorModel)
 	return false
 end
 
-function ValidateDoor(DoorFolder: Folder & { Parent: Model }): boolean
+function MakeMotor6D(p0, p1, in_place)
+	local cf
+	if in_place then
+		cf = p0.CFrame:ToObjectSpace(p1.CFrame)
+	end
+
+	p1.Anchored = true
+	for _, joint in pairs(p1:GetJoints()) do
+		if (joint.Part0 == p0 and joint.Part1 == p1) or (joint.Part0 == p1 and joint.Part1 == p0) then
+			joint.Parent = nil
+		end
+	end
+
+	local motor = Instance.new("Motor6D")
+	motor.Name = p1.Name
+	motor.Part0 = p0
+	motor.Part1 = p1
+	if cf then
+		motor.C0 = cf
+	end
+	motor.Parent = p0
+
+	p1.Anchored = false
+
+	return motor
+end
+
+function ValidateDoor(DoorFolder: Folder & { Parent: Model }): (boolean, string?)
 	if not DoorFolder:IsA("Folder") then
-		return false
+		return false, "Door is not a Folder"
 	end
 
 	DoorFolder.Parent:AddTag("DoorModel")
 
 	local DoorWeld = DoorFolder:FindFirstChild("DoorWeld", true) :: BasePart?
 	if not DoorWeld then
-		return false
+		return false, "Door does not contain a DoorWeld"
 	end
 
 	local Hinge = DoorFolder:FindFirstChild("Hinge", true) :: BasePart?
 	if not Hinge then
-		return false
+		return false, "Door does not contain a Hinge (BasePart)"
 	end
 
-	if not Hinge:FindFirstChildOfClass("Motor6D") then
-		warn(`{DoorFolder:GetFullName()} does not have a Motor6D within the hinge.`)
-		return false
+	local M6D = Hinge:FindFirstChildOfClass("Motor6D")
+
+	if not M6D then
+		M6D = MakeMotor6D(Hinge, DoorWeld, true)
+		warn(`Made the Motor6D for {DoorFolder:GetFullName()}`)
+	end
+
+	if not M6D:GetAttribute("OpenAngle") then
+		M6D:SetAttribute("OpenAngle", -90)
+	end
+
+	if M6D.MaxVelocity == 0 then
+		M6D.MaxVelocity = 0.1
 	end
 
 	local WholeDoor = DoorFolder:FindFirstChild("WholeDoor") :: BasePart
 	if not WholeDoor then
-		return false
+		return false, "No WholeDoor Folder Found."
 	end
 
 	local Handle = WholeDoor:FindFirstChild("Handle") :: BasePart
 	if not Handle then
-		return false
+		return false, "No Handle Found"
 	end
 
 	local DoorParts = {}
@@ -123,6 +159,13 @@ function ValidateDoor(DoorFolder: Folder & { Parent: Model }): boolean
 		WeldConstraint.Name = v.Name
 	end
 
+	for _, v in pairs(DoorFolder:GetDescendants()) do
+		if (not v:IsA("BasePart")) or v.Name == "Hinge" then
+			continue
+		end
+		v.Anchored = false
+	end
+
 	return true
 end
 
@@ -133,7 +176,6 @@ return function(Fusion: any, FusionPlugin: any, EmberUtilities: any)
 	local WindowButton = require(Styles.WindowButton)
 
 	--
-	local OnEvent = Fusion.OnEvent
 	local Value = Fusion.Value
 	local Out = Fusion.Out
 	local Children = Fusion.Children
@@ -175,14 +217,15 @@ return function(Fusion: any, FusionPlugin: any, EmberUtilities: any)
 				Text = "Validate Selected Door(s)",
 				OnClick = function()
 					for _, v: any in pairs(Selection:Get()) do
-						if ValidateDoor(v) then
+						local Success, ErrorMsg = ValidateDoor(v)
+						if Success then
 							MakeHighlightGreen(v.Parent)
 							print(`"{v:GetFullName()}" has passed validation`)
 							continue
 						end
 
 						MakeHighlightRed(v)
-						warn(`"{v:GetFullName()}" has failed validation`)
+						warn(`"{v:GetFullName()}" has failed validation. \nReason: {ErrorMsg}`)
 					end
 				end,
 			},

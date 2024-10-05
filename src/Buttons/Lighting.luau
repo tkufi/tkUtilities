@@ -1,6 +1,8 @@
 local Debris = game:GetService("Debris")
 local Lighting = game:GetService("Lighting")
 
+local StreetLighting = require(script.Parent.Parent.Resources.StreetLighting)
+
 local LightingModules = {}
 
 local Effects = {
@@ -52,6 +54,8 @@ function HandleLighting(Type: string)
 			instance.Parent = Lighting
 		end
 	end
+
+	StreetLighting.SetTime(Type == "Evening")
 end
 
 return function(Fusion: any, FusionPlugin: any, EmberUtilities: any)
