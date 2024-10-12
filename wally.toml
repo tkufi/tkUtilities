@@ -7,3 +7,4 @@ realm = "shared"
 [dependencies]
 fusion-plugin = "frqstbite/fusion-plugin@1.1.3"
 Janitor = "howmanysmall/janitor@^1.17.0"
+TableUtil = "sleitnick/table-util@1.2.1"

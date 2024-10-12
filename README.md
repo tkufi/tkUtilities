@@ -43,7 +43,8 @@ If you would like to track your Code:Stats progress, please use:
 1. Lighting Controls
 2. Door Validation
 3. Door Motor Connection
+4. Properly detect doors within models
 
 ## ToDo
 
-1. Properly detect doors within models
+1. Configuration Manager

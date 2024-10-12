@@ -2,6 +2,16 @@ local CollectionService = game:GetService("CollectionService")
 local CoreGui = game:GetService("CoreGui")
 local Debris = game:GetService("Debris")
 local Selection = game:GetService("Selection")
+local Workspace = game:GetService("Workspace")
+
+local EmberUtilities = script.Parent.Parent
+
+local ColorDB = require(Workspace.EmberUtilities.Styles.ColorDB)
+local TableUtil = require(script.Parent.Parent.Packages.TableUtil)
+
+local Styles = EmberUtilities.Styles
+local WindowButton = require(Styles.WindowButton)
+local WindowTextBox = require(Styles.WindowTextBox)
 
 local TrackedHighlights = {}
 
@@ -57,7 +67,7 @@ function MakeHighlightRed(DoorModel)
 	return false
 end
 
-function MakeMotor6D(p0, p1, in_place)
+function MakeMotor6D(p0: any, p1: any, in_place: boolean): Motor6D
 	local cf
 	if in_place then
 		cf = p0.CFrame:ToObjectSpace(p1.CFrame)
@@ -101,12 +111,7 @@ function ValidateDoor(DoorFolder: Folder & { Parent: Model }): (boolean, string?
 		return false, "Door does not contain a Hinge (BasePart)"
 	end
 
-	local M6D = Hinge:FindFirstChildOfClass("Motor6D")
-
-	if not M6D then
-		M6D = MakeMotor6D(Hinge, DoorWeld, true)
-		warn(`Made the Motor6D for {DoorFolder:GetFullName()}`)
-	end
+	local M6D: Motor6D = Hinge:FindFirstChildOfClass("Motor6D") or MakeMotor6D(Hinge, DoorWeld, true)
 
 	if not M6D:GetAttribute("OpenAngle") then
 		M6D:SetAttribute("OpenAngle", -90)
@@ -169,13 +174,33 @@ function ValidateDoor(DoorFolder: Folder & { Parent: Model }): (boolean, string?
 	return true
 end
 
-return function(Fusion: any, FusionPlugin: any, EmberUtilities: any)
+function GetDoorsFromModel(doorModel: Model): { Instance }
+	local doors = {}
+
+	for _, v: Instance | any in pairs(doorModel:GetDescendants()) do
+		if v:IsA("BasePart") and v.Name == "Handle" then
+			table.insert(doors, v.Parent.Parent)
+		end
+	end
+
+	return doors
+end
+
+function GetDoorsFromSelection(Tbl: { Instance }): { Instance }
+	local doors = {}
+
+	for _, v in pairs(Tbl) do
+		if v:IsA("Model") then
+			doors = TableUtil.Extend(doors, GetDoorsFromModel(v :: Model))
+		end
+	end
+
+	return doors
+end
+
+return function(Fusion: any, FusionPlugin: any)
 	local ButtonConfig = {}
 
-	local Styles = EmberUtilities.Styles
-	local WindowButton = require(Styles.WindowButton)
-
-	--
 	local Value = Fusion.Value
 	local Out = Fusion.Out
 	local Children = Fusion.Children
@@ -196,6 +221,66 @@ return function(Fusion: any, FusionPlugin: any, EmberUtilities: any)
 		end
 	end
 
+	--// Door Configuration Widget
+	local ConfigOpen = Value(false)
+	local AuthTeamsText = Value("")
+
+	-- local ConfigWidget =
+	DockWidget "DoorWidget_Config" {
+		Title = "EU - Door Configuration",
+		Enabled = ConfigOpen,
+		[Out "Enabled"] = ConfigOpen,
+		[Children] = {
+			New "UIPadding" {
+				PaddingBottom = UDim.new(0, 5),
+				PaddingLeft = UDim.new(0, 5),
+				PaddingRight = UDim.new(0, 5),
+				PaddingTop = UDim.new(0, 5),
+			},
+
+			New "ScrollingFrame" {
+				Size = UDim2.new(1, 0, 1, -40),
+				CanvasSize = UDim2.fromScale(0, 0),
+				AutomaticCanvasSize = Enum.AutomaticSize.Y,
+				ScrollBarThickness = 6,
+				BackgroundTransparency = 1,
+
+				[Children] = {
+					New "UIListLayout" {
+						Padding = UDim.new(0, 5),
+						SortOrder = Enum.SortOrder.LayoutOrder,
+					},
+
+					New "TextLabel" {
+						LayoutOrder = 0,
+
+						Size = UDim2.new(1, 0, 0, 22),
+						BackgroundTransparency = 1,
+						TextSize = 14,
+						TextXAlignment = Enum.TextXAlignment.Left,
+						TextColor3 = ColorDB.Solid.DefaultTextColor,
+						Text = "Input Authorised Teams",
+					},
+
+					WindowTextBox {
+						LayoutOrder = 1,
+
+						Size = UDim2.new(1, -6, 0, 35),
+						Text = "",
+						PlaceholderText = "Input Authorised Teams",
+						[Out "Text"] = AuthTeamsText,
+						KeepText = true,
+					},
+				},
+			},
+		},
+
+		-- NON-REACTIVE
+		Size = Vector2.new(250, 300),
+		MinimumSize = Vector2.new(300, 400), --Defaults to .Size
+	}
+
+	--// Primary Widget
 	local Widget = DockWidget "DoorWidget" {
 		Title = "EU - Door Validation",
 		Enabled = IsOpen,
@@ -212,11 +297,15 @@ return function(Fusion: any, FusionPlugin: any, EmberUtilities: any)
 				Padding = UDim.new(0, 5),
 			},
 
+			-- Validate Button
 			WindowButton {
 				Size = UDim2.new(1, 0, 0, 35),
 				Text = "Validate Selected Door(s)",
 				OnClick = function()
-					for _, v: any in pairs(Selection:Get()) do
+					local selected = Selection:Get()
+					local allDoors = GetDoorsFromSelection(selected) :: { Instance }
+
+					for _, v: any in pairs(allDoors) do
 						local Success, ErrorMsg = ValidateDoor(v)
 						if Success then
 							MakeHighlightGreen(v.Parent)
@@ -227,6 +316,15 @@ return function(Fusion: any, FusionPlugin: any, EmberUtilities: any)
 						MakeHighlightRed(v)
 						warn(`"{v:GetFullName()}" has failed validation. \nReason: {ErrorMsg}`)
 					end
+				end,
+			},
+
+			-- Configure Widget Button
+			WindowButton {
+				Size = UDim2.new(1, 0, 0, 35),
+				Text = "Configure Selected Door(s)",
+				OnClick = function()
+					ConfigOpen:set(not ConfigOpen:get())
 				end,
 			},
 		},
