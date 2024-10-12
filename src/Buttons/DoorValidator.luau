@@ -2,11 +2,12 @@ local CollectionService = game:GetService("CollectionService")
 local CoreGui = game:GetService("CoreGui")
 local Debris = game:GetService("Debris")
 local Selection = game:GetService("Selection")
-local Workspace = game:GetService("Workspace")
 
 local EmberUtilities = script.Parent.Parent
 
-local ColorDB = require(Workspace.EmberUtilities.Styles.ColorDB)
+local Computed = require(EmberUtilities.Fusion.State.Computed)
+local ColorDB = require(EmberUtilities.Styles.ColorDB)
+
 local TableUtil = require(script.Parent.Parent.Packages.TableUtil)
 
 local Styles = EmberUtilities.Styles
@@ -224,6 +225,7 @@ return function(Fusion: any, FusionPlugin: any)
 	--// Door Configuration Widget
 	local ConfigOpen = Value(false)
 	local AuthTeamsText = Value("")
+	local isLEO = Value(false)
 
 	-- local ConfigWidget =
 	DockWidget "DoorWidget_Config" {
@@ -251,6 +253,8 @@ return function(Fusion: any, FusionPlugin: any)
 						SortOrder = Enum.SortOrder.LayoutOrder,
 					},
 
+					--// Auth Teams
+
 					New "TextLabel" {
 						LayoutOrder = 0,
 
@@ -270,6 +274,33 @@ return function(Fusion: any, FusionPlugin: any)
 						PlaceholderText = "Input Authorised Teams",
 						[Out "Text"] = AuthTeamsText,
 						KeepText = true,
+					},
+
+					--// Is LEO
+
+					New "TextLabel" {
+						LayoutOrder = 2,
+
+						Size = UDim2.new(1, 0, 0, 22),
+						BackgroundTransparency = 1,
+						TextSize = 14,
+						TextXAlignment = Enum.TextXAlignment.Left,
+						TextColor3 = ColorDB.Solid.DefaultTextColor,
+						Text = "Input Authorised Teams",
+					},
+
+					WindowButton {
+						LayoutOrder = 3,
+
+						Size = UDim2.new(1, 0, 0, 35),
+						Text = Computed(function()
+							return isLEO:get() and "LEO Only: true" or "LEO Only: false"
+						end),
+						Color = ColorDB.Sequences.GreyButton,
+
+						OnClick = function()
+							isLEO:set(not isLEO:get())
+						end,
 					},
 				},
 			},

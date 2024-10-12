@@ -11,7 +11,7 @@ local ColorDB = require(script.Parent.ColorDB)
 type Properties = {
 	LayoutOrder: number?,
 	AutoButtonColor: boolean?,
-	Color: Fusion.CanBeState<Color3> | Color3?,
+	Color: Fusion.CanBeState<any> | any?,
 	Transparency: number?,
 	TextColor: Color3?,
 	Text: Fusion.CanBeState<string> | string,

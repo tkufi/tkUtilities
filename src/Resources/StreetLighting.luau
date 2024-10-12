@@ -10,12 +10,11 @@ function CalculateLightState(State, v)
 		else
 			v.Material = Enum.Material.SmoothPlastic
 		end
-		if v:FindFirstAncestorOfClass("SpotLight") then
-			v:FindFirstAncestorOfClass("SpotLight").Enabled = State
-		elseif v:FindFirstChildOfClass("SurfaceLight") then
-			v:FindFirstChildOfClass("SurfaceLight").Enabled = State
-		elseif v:FindFirstChildOfClass("PointLight") then
-			v:FindFirstChildOfClass("PointLight").Enabled = State
+		
+		for _,c in pairs(v:GetChildren()) do
+			if c:IsA("Light") then
+				c.Enabled = State
+			end
 		end
 	elseif v:IsA("SpotLight") or v:IsA("SurfaceLight") or v:IsA("PointLight") then
 		v.Enabled = State
