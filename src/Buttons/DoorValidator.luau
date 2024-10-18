@@ -206,6 +206,7 @@ return function(Fusion: any, FusionPlugin: any)
 	local Out = Fusion.Out
 	local Children = Fusion.Children
 	local New = Fusion.New
+	local OnChange = Fusion.OnChange
 
 	local DockWidget = FusionPlugin.DockWidget
 	--
@@ -224,7 +225,7 @@ return function(Fusion: any, FusionPlugin: any)
 
 	--// Door Configuration Widget
 	local ConfigOpen = Value(false)
-	local AuthTeamsText = Value("")
+	local AuthTeamsText = Value(nil :: string)
 	local isLEO = Value(false)
 
 	-- local ConfigWidget =
@@ -272,7 +273,10 @@ return function(Fusion: any, FusionPlugin: any)
 						Size = UDim2.new(1, -6, 0, 35),
 						Text = "",
 						PlaceholderText = "Input Authorised Teams",
-						[Out "Text"] = AuthTeamsText,
+						-- [Out "Text"] = AuthTeamsText,
+						Changed = function(Text: string)
+							AuthTeamsText:set(Text)
+						end,
 						KeepText = true,
 					},
 
@@ -303,6 +307,34 @@ return function(Fusion: any, FusionPlugin: any)
 						end,
 					},
 				},
+			},
+
+			WindowButton {
+				LayoutOrder = 3,
+				AnchorPoint = Vector2.new(0, 1),
+				Position = UDim2.fromScale(0, 1),
+				Size = UDim2.new(1, 0, 0, 35),
+				Text = "Apply Configuration",
+				Color = ColorDB.Sequences.GreenButton,
+
+				OnClick = function()
+					local selected = Selection:Get()
+					local allDoors = GetDoorsFromSelection(selected) :: { Instance }
+
+					for _, door: any in pairs(allDoors) do
+						door.Parent:SetAttribute("isLEO", isLEO:get())
+						
+						if AuthTeamsText:get() == "" then
+							door.Parent:SetAttribute("AuthorisedTeams", nil)
+						else
+							door.Parent:SetAttribute("AuthorisedTeams", AuthTeamsText:get())
+						end
+					end
+
+					print(
+						`Applied\nisLEO: {isLEO:get()}\nAuthorisedTeams: {AuthTeamsText:get()}\nto #{#allDoors} doors`
+					)
+				end,
 			},
 		},
 

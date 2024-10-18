@@ -6,6 +6,7 @@ local Fusion = require(script.Parent.Parent.Fusion)
 local New = Fusion.New
 local OnEvent = Fusion.OnEvent
 local Children = Fusion.Children
+local OnChange = Fusion.OnChange
 
 local ColorDB = require(script.Parent.ColorDB)
 
@@ -37,6 +38,8 @@ local function WindowTextBox(properties: Properties)
 
 		BackgroundTransparency = 0,
 		BackgroundColor3 = ColorDB.Solid.WindowBackground,
+
+		[OnChange "Text"] = properties.Changed,
 
 		[Children] = {
 			New "UIPadding" {

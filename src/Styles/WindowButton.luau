@@ -10,6 +10,8 @@ local ColorDB = require(script.Parent.ColorDB)
 
 type Properties = {
 	LayoutOrder: number?,
+	AnchorPoint: Vector2?,
+	Position: UDim2?,
 	AutoButtonColor: boolean?,
 	Color: Fusion.CanBeState<any> | any?,
 	Transparency: number?,
@@ -26,6 +28,9 @@ local function WindowButton(properties: Properties)
 		AutoButtonColor = properties.AutoButtonColor or false,
 		BackgroundColor3 = Color3.fromRGB(178, 187, 204),
 		BackgroundTransparency = properties.Transparency,
+
+		Position = properties.Position,
+		AnchorPoint = properties.AnchorPoint,
 
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextYAlignment = Enum.TextYAlignment.Center,
