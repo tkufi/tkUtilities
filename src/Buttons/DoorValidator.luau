@@ -227,6 +227,7 @@ return function(Fusion: any, FusionPlugin: any)
 	local ConfigOpen = Value(false)
 	local AuthTeamsText = Value(nil :: string)
 	local isLEO = Value(false)
+	local doorDisabled = Value(false)
 
 	-- local ConfigWidget =
 	DockWidget "DoorWidget_Config" {
@@ -306,6 +307,33 @@ return function(Fusion: any, FusionPlugin: any)
 							isLEO:set(not isLEO:get())
 						end,
 					},
+
+					--// Disable Doors
+
+					New "TextLabel" {
+						LayoutOrder = 4,
+
+						Size = UDim2.new(1, 0, 0, 22),
+						BackgroundTransparency = 1,
+						TextSize = 14,
+						TextXAlignment = Enum.TextXAlignment.Left,
+						TextColor3 = ColorDB.Solid.DefaultTextColor,
+						Text = "Disable Doors",
+					},
+
+					WindowButton {
+						LayoutOrder = 5,
+
+						Size = UDim2.new(1, 0, 0, 35),
+						Text = Computed(function()
+							return doorDisabled:get() and "Disabled: true" or "Disabled: false"
+						end),
+						Color = ColorDB.Sequences.GreyButton,
+
+						OnClick = function()
+							doorDisabled:set(not doorDisabled:get())
+						end,
+					},
 				},
 			},
 
@@ -323,16 +351,28 @@ return function(Fusion: any, FusionPlugin: any)
 
 					for _, door: any in pairs(allDoors) do
 						door.Parent:SetAttribute("isLEO", isLEO:get())
-						
+
 						if AuthTeamsText:get() == "" then
 							door.Parent:SetAttribute("AuthorisedTeams", nil)
 						else
 							door.Parent:SetAttribute("AuthorisedTeams", AuthTeamsText:get())
 						end
+
+						local Handle = door:FindFirstChild("Handle", true)
+						if not Handle then
+							return
+						end
+
+						if Handle:FindFirstChild("OpenCloseDoorHandle") then
+							Handle.OpenCloseDoorHandle.Enabled = not doorDisabled:get()
+						end
+						if Handle:FindFirstChild("LockDoorHandle") then
+							Handle.OpenCloseDoorHandle.Enabled = not doorDisabled:get()
+						end
 					end
 
 					print(
-						`Applied\nisLEO: {isLEO:get()}\nAuthorisedTeams: {AuthTeamsText:get()}\nto #{#allDoors} doors`
+						`Applied\nisLEO: {isLEO:get()}\nAuthorisedTeams: {AuthTeamsText:get()}\nDisabled: {doorDisabled:get()}\nto #{#allDoors} doors`
 					)
 				end,
 			},
