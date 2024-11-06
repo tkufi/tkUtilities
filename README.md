@@ -1,6 +1,6 @@
-# EmberUtilities
+# tkUtilities
 
-Welcome to the EmberUtilities Repository, this contains the source code for a plugin used by the Firestone Research and Development Team whilst developing Stapleton County V3.
+Welcome to the tkUtilities Repository, this contains the source code for a plugin used by the TKU | Development team to develop Turku Services, Products and Experiences on the Roblox Platform.
 
 ## Getting Started
 
