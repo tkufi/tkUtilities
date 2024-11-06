@@ -30,7 +30,7 @@ end
 
 return {
 	SetTime = function(IsNight)
-		for _, v in pairs(CollectionService:GetTagged("DayNight_Light")) do
+		for _, v in pairs(CollectionService:GetTagged("DynamicLight")) do
 			CalculateLightState(IsNight, v)
 		end
 	end,
