@@ -2,9 +2,11 @@
 
 Welcome to the tkUtilities Repository, this contains the source code for a plugin used by the TKU | Development team to develop Turku Services, Products and Experiences on the Roblox Platform.
 
+This repository used to be a personal project, but has since been released under the Tkufi Organisation to be freely accessible.
+
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing. See deployment for notes on deploying the project on a live system.
 
 ### Prerequisites
 
